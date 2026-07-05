@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TypeNot — Release Cycle</title>
+<style>
+  :root{
+    --bg:#07080C; --elev:#0E1017; --elev2:#141824;
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+    --fg:#E8EAF0; --dim:#8A90A6; --faint:#5A6072;
+    --cyan:#00E5FF; --violet:#8B5CF6; --magenta:#FF3DC9;
+    --lime:#9BE86C; --amber:#FBBF24; --coral:#FF6B6B;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;
+    --sans:-apple-system,"SF Pro Display",system-ui,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px}
+  a{color:var(--cyan);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code,kbd{font-family:var(--mono);font-size:.86em}
+  .eyebrow{font-family:var(--mono);text-transform:uppercase;letter-spacing:.16em;
+    font-size:12px;color:var(--dim)}
+
+  /* hero */
+  header{padding:64px 0 40px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  header .wrap{position:relative;z-index:1}
+  h1{font-size:clamp(30px,5vw,44px);margin:14px 0 8px;letter-spacing:-.02em;text-wrap:balance}
+  .lede{color:var(--dim);font-size:18px;max-width:60ch;margin:0}
+  .aurora{height:2px;width:220px;margin-top:26px;border-radius:2px;
+    background:linear-gradient(90deg,var(--cyan),var(--violet),var(--magenta))}
+
+  main{padding:8px 0 72px}
+  section{padding:40px 0;border-bottom:1px solid var(--line)}
+  section:last-child{border-bottom:0}
+  h2{font-size:24px;letter-spacing:-.01em;margin:0 0 6px;display:flex;gap:12px;align-items:baseline}
+  h2 .n{font-family:var(--mono);font-size:14px;color:var(--cyan);letter-spacing:.05em}
+  h3{font-size:16px;margin:24px 0 8px}
+  p{margin:10px 0}
+  .muted{color:var(--dim)}
+
+  /* flow */
+  .flow{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0;align-items:stretch}
+  .step{flex:1 1 140px;min-width:140px;background:var(--elev);border:1px solid var(--line);
+    border-radius:12px;padding:14px}
+  .step .k{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase}
+  .step .t{margin-top:6px;font-size:14px;color:var(--fg)}
+  .step .d{margin-top:4px;font-size:12.5px;color:var(--dim)}
+
+  /* code blocks */
+  pre{background:var(--elev);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;overflow-x:auto;margin:14px 0}
+  pre code{font-size:13px;color:#D7DCE8;line-height:1.7}
+  .cmt{color:var(--faint)}
+
+  /* callouts */
+  .note{border:1px solid var(--line2);border-left:3px solid var(--cyan);background:var(--elev);
+    border-radius:10px;padding:14px 16px;margin:16px 0}
+  .note.warn{border-left-color:var(--amber)}
+  .note.tip{border-left-color:var(--lime)}
+  .note .lbl{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--dim)}
+  .note p{margin:6px 0 0}
+
+  /* pills / table */
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    padding:2px 8px;border-radius:999px;border:1px solid var(--line2);color:var(--dim)}
+  .pill.now{color:var(--lime);border-color:rgba(155,232,108,.4)}
+  .pill.soon{color:var(--cyan);border-color:rgba(0,229,255,.4)}
+  .pill.warn{color:var(--amber);border-color:rgba(251,191,36,.4)}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);font-weight:400}
+  .scroll{overflow-x:auto}
+
+  ol,ul{padding-left:22px} li{margin:6px 0}
+  footer{padding:32px 0 56px;color:var(--faint);font-family:var(--mono);font-size:12px}
+  .toc{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;font-family:var(--mono);font-size:12.5px}
+  .toc a{color:var(--dim)} .toc a:hover{color:var(--cyan)}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">TypeNot · Desktop</div>
+    <h1>Release Cycle</h1>
+    <p class="lede">How a TypeNot desktop version goes from a version bump to a signed download that
+      existing users auto-update to.</p>
+    <div class="aurora"></div>
+    <nav class="toc">
+      <a href="#glance">At a glance</a>
+      <a href="#version">Versioning</a>
+      <a href="#setup">One-time setup</a>
+      <a href="#cut">Cut a release</a>
+      <a href="#ci">What CI does</a>
+      <a href="#signing">Signing</a>
+      <a href="#update">Auto-update</a>
+      <a href="#cost">Cost & runners</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="glance">
+    <h2><span class="n">01</span> At a glance</h2>
+    <p class="muted">One tag drives the whole pipeline. The app source lives in a <strong>private</strong>
+      repo; only built installers are published to this <strong>public</strong> repo, which the app polls
+      for updates.</p>
+    <div class="flow">
+      <div class="step"><div class="k">1 · You</div><div class="t">Bump <code>appVersion</code></div><div class="d">gradle.properties, one line</div></div>
+      <div class="step"><div class="k">2 · You</div><div class="t">Tag <code>v1.2.0</code></div><div class="d">push the tag</div></div>
+      <div class="step"><div class="k">3 · CI</div><div class="t">Build <code>.dmg</code></div><div class="d">packageReleaseDmg, arm64</div></div>
+      <div class="step"><div class="k">4 · CI</div><div class="t">Publish release</div><div class="d">to this public repo + SHA-256</div></div>
+      <div class="step"><div class="k">5 · App</div><div class="t">Auto-update</div><div class="d">prompts users on next launch</div></div>
+    </div>
+  </section>
+
+  <section id="version">
+    <h2><span class="n">02</span> Versioning — one source of truth</h2>
+    <p><code>appVersion</code> in <code>gradle.properties</code> is the <strong>only</strong> place the
+      version is set. It drives every consumer, so nothing drifts:</p>
+    <ul>
+      <li>desktop <code>.dmg</code> / <code>.msi</code> / <code>.deb</code> <code>packageVersion</code></li>
+      <li>Android <code>versionName</code></li>
+      <li>the <code>server</code> artifact version</li>
+      <li>the generated runtime constant <code>AppVersion.NAME</code> (<code>core:models</code>) — used by
+        analytics, the Sentry <code>release</code> tag, and the in-app update check</li>
+    </ul>
+    <p class="muted">CI overrides it from the pushed git tag (<code>-PappVersion=1.2.0</code>), so a tagged
+      build always reports the tagged version.</p>
+  </section>
+
+  <section id="setup">
+    <h2><span class="n">03</span> One-time setup</h2>
+    <p>Three things must be true before a tag produces a published release.</p>
+    <div class="scroll"><table>
+      <tr><th>What</th><th>Why</th><th>Status</th></tr>
+      <tr><td>Public repo <code>m2f-kt/NoType-releases</code></td><td>The private source repo can't hand out downloads to un-authenticated clients; this public repo is the download + update channel.</td><td><span class="pill now">done</span></td></tr>
+      <tr><td>Secret <code>RELEASE_PAT</code> on the private repo</td><td>The release workflow runs in the private repo; its built-in token can't write to a <em>different</em> repo. A fine-grained PAT (resource owner <code>m2f-kt</code>, repo <code>NoType-releases</code>, <strong>Contents: read &amp; write</strong>) lets CI publish here.</td><td><span class="pill warn">todo</span></td></tr>
+      <tr><td>Actions minutes available</td><td>macOS runners bill at 10×; the free private-repo allowance drains fast, and a $0 spending limit blocks jobs. See <a href="#cost">Cost &amp; runners</a>.</td><td><span class="pill warn">todo</span></td></tr>
+    </table></div>
+    <div class="note">
+      <div class="lbl">Add the PAT secret</div>
+      <p>UI: private repo → Settings → Secrets and variables → Actions → New secret <code>RELEASE_PAT</code>.
+      Or CLI:</p>
+      <pre><code>gh secret set RELEASE_PAT --repo m2f-kt/NoType   <span class="cmt"># paste the PAT when prompted</span></code></pre>
+    </div>
+  </section>
+
+  <section id="cut">
+    <h2><span class="n">04</span> Cut a release</h2>
+    <p>Bump the version, commit, tag, push. The tag is what triggers CI.</p>
+    <pre><code><span class="cmt"># 1. Bump the version (single source of truth)</span>
+<span class="cmt">#    edit gradle.properties → appVersion=1.2.0</span>
+git commit -am "chore: release 1.2.0"
+
+<span class="cmt"># 2. Tag it — this triggers the Release workflow</span>
+git tag v1.2.0
+git push origin master --tags</code></pre>
+    <p class="muted">You can also run it by hand: <strong>Actions → Release → Run workflow</strong>, enter a
+      version. No local Xcode/JDK needed — the runner builds it.</p>
+  </section>
+
+  <section id="ci">
+    <h2><span class="n">05</span> What CI does</h2>
+    <p>On a <code>v*</code> tag, <code>.github/workflows/release.yml</code> (Apple-Silicon runner):</p>
+    <ol>
+      <li>builds <code>:composeApp:packageReleaseDmg</code> (ProGuard, &lt; 80 MB) with the version from the tag;</li>
+      <li>renames + SHA-256-checksums the artifact (<code>TypeNot-&lt;version&gt;-arm64.dmg</code>);</li>
+      <li>publishes a GitHub Release <strong>into this public repo</strong> with the <code>.dmg</code> and its
+        <code>.sha256</code> attached, using the <code>RELEASE_PAT</code>.</li>
+    </ol>
+    <div class="note tip">
+      <div class="lbl">Verify a download</div>
+      <pre><code>shasum -a 256 -c TypeNot-1.2.0-arm64.dmg.sha256</code></pre>
+    </div>
+  </section>
+
+  <section id="signing">
+    <h2><span class="n">06</span> Signing &amp; notarization</h2>
+    <p>Signing and notarization are <strong>env-gated</strong> in <code>composeApp/build.gradle.kts</code> —
+      the build auto-enables them when the secrets exist, and ships ad-hoc otherwise.</p>
+    <div class="scroll"><table>
+      <tr><th>State</th><th>Behavior</th></tr>
+      <tr><td><span class="pill warn">today · ad-hoc</span></td><td>No signing secrets → ad-hoc-signed, un-notarized <code>.dmg</code>. macOS Gatekeeper blocks silent self-install, so the app <strong>notifies + opens the download page</strong>.</td></tr>
+      <tr><td><span class="pill soon">after Apple enrollment</span></td><td>Add <code>MACOS_SIGN_IDENTITY</code> + <code>NOTARIZATION_APPLE_ID</code> / <code>NOTARIZATION_PASSWORD</code> / <code>NOTARIZATION_TEAM_ID</code> secrets → CI signs + notarizes. The update can then become one-click download → verify → relaunch.</td></tr>
+    </table></div>
+    <div class="note warn">
+      <div class="lbl">Before enabling signing</div>
+      <p>Move the fat-jar native-strip step ahead of signing (see the "Revisit when notarization goes live"
+        comment in <code>composeApp/build.gradle.kts</code>) — stripping after signing invalidates the
+        signature.</p>
+    </div>
+  </section>
+
+  <section id="update">
+    <h2><span class="n">07</span> In-app auto-update</h2>
+    <p>The desktop app checks this repo's latest release once per launch
+      (<code>composeApp/.../update/</code>):</p>
+    <ul>
+      <li>polls <code>…/repos/m2f-kt/NoType-releases/releases/latest</code> (public, no auth, bounded timeouts, HTTPS-only, silent on failure);</li>
+      <li>compares the tag to <code>AppVersion.NAME</code> with a small semver comparison;</li>
+      <li>if newer, shows an Aurora prompt — <strong>Download</strong> opens the release page, <strong>Later</strong>
+        dismisses; both remember the version so it won't re-nag until an even newer build ships.</li>
+    </ul>
+    <p class="muted">Desktop-only; on mobile/web the checker is absent and the prompt is a no-op (those
+      platforms update through their app stores). Fully-silent background install is not possible for direct
+      macOS distribution by Apple's design — one-click prompt-relaunch is the ceiling.</p>
+  </section>
+
+  <section id="cost">
+    <h2><span class="n">08</span> Cost &amp; runners</h2>
+    <p>The build runs on a <strong>macOS</strong> runner in a <strong>private</strong> repo, the most
+      expensive combination on GitHub Actions:</p>
+    <ul>
+      <li>Free tier = <strong>2,000 minutes/month</strong> for private repos (public repos are unlimited).</li>
+      <li>macOS bills at <strong>10×</strong> → ~200 macOS-minutes on the free allowance.</li>
+      <li>The default spending limit is <strong>$0</strong>, so once the free minutes are gone, jobs are
+        <strong>blocked</strong> rather than billed.</li>
+    </ul>
+    <p>Check usage + the spending limit under
+      <a href="https://github.com/organizations/m2f-kt/settings/billing">org billing</a>. Cheapest ways to
+      keep shipping:</p>
+    <div class="scroll"><table>
+      <tr><th>Option</th><th>Trade-off</th></tr>
+      <tr><td><strong>Self-hosted macOS runner</strong> (your own Mac)</td><td>$0 GitHub minutes, no quota. Set <code>runs-on: [self-hosted, macOS]</code>. Best for a solo builder. <span class="pill now">recommended</span></td></tr>
+      <tr><td><strong>Build locally, publish manually</strong></td><td>No CI: <code>./gradlew :composeApp:packageReleaseDmg -PappVersion=1.2.0</code> then <code>gh release create v1.2.0 --repo m2f-kt/NoType-releases *.dmg</code>.</td></tr>
+      <tr><td><strong>Raise the spending limit</strong></td><td>A few $/month covers a monthly macOS build; keep the tag-triggered workflow as-is.</td></tr>
+    </table></div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  TypeNot · release documentation · source lives in the private repo · downloads &amp; updates published here
+</footer>
+</body>
+</html>

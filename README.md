@@ -23,6 +23,11 @@ is available. Releases are published automatically by CI when a new version is t
 shasum -a 256 -c TypeNot-<version>-arm64.dmg.sha256
 ```
 
+## Releasing (maintainers)
+
+📖 **[Release cycle documentation →](https://m2f-kt.github.io/NoType-releases/)** — how a version bump
+becomes a published, auto-updatable build (versioning, CI, signing, cost & runners).
+
 ---
 
 _Installers are published here automatically; do not commit application source to this repository._
